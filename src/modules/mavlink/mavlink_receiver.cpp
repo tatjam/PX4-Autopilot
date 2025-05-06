@@ -358,6 +358,14 @@ MavlinkReceiver::handle_message(mavlink_message_t *msg)
 			handle_message_hil_optical_flow(msg);
 			break;
 
+		// IRPAS
+		case MAVLINK_MSG_ID_IRPAS_SIM_CAN:
+			handle_message_irpas_hitl_can(msg);
+			break;
+
+		case MAVLINK_MSG_ID_IRPAS_SIM_CAN_PACK:
+			handle_message_irpas_hitl_can_pack(msg);
+			break;
 		default:
 			break;
 		}
@@ -2890,6 +2898,52 @@ void MavlinkReceiver::handle_message_statustext(mavlink_message_t *msg)
 		}
 	}
 }
+
+
+void MavlinkReceiver::handle_message_irpas_hitl_can(mavlink_message_t *msg)
+{
+	//if ((msg->sysid == mavlink_system.sysid) && (msg->compid == mavlink_system.compid)) {
+	//	// Ignore if message comes from ourselves (echo or similar)
+	//	return;
+	//}
+
+	mavlink_irpas_sim_can_t sim_can;
+	mavlink_msg_irpas_sim_can_decode(msg, &sim_can);
+
+	ubay_hitl_can_from_hitl_s data;
+	data.timestamp = hrt_absolute_time();
+	data.id = sim_can.id;
+	data.data_size = sim_can.data_len;
+	for(int i = 0; i < sim_can.data_len; i++)
+	{
+		data.data[i] = sim_can.data[i];
+	}
+	_ubay_hitl_can_from_hitl_pub.publish(data);
+}
+
+void MavlinkReceiver::handle_message_irpas_hitl_can_pack(mavlink_message_t *msg)
+{
+	//if ((msg->sysid == mavlink_system.sysid) && (msg->compid == mavlink_system.compid)) {
+	//	// Ignore if message comes from ourselves (echo or similar)
+	//	return;
+	//}
+
+	// TODO: We do a full-copy, including the zeros, maybe it's better
+	// to intelligently count / mavlink offers some function to get the number
+	// of padding zeros?
+	mavlink_irpas_sim_can_pack_t sim_can;
+	mavlink_msg_irpas_sim_can_pack_decode(msg, &sim_can);
+
+	ubay_hitl_can_pack_from_hitl_s data;
+	data.timestamp = hrt_absolute_time();
+	data.num_messages = sim_can.num_messages;
+	for(unsigned int i = 0; i < sizeof(sim_can.raw_data); i++)
+	{
+		data.raw_data[i] = sim_can.raw_data[i];
+	}
+	_ubay_hitl_can_pack_from_hitl_pub.publish(data);
+}
+
 
 void MavlinkReceiver::CheckHeartbeats(const hrt_abstime &t, bool force)
 {

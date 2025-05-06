@@ -112,6 +112,9 @@
 #include <uORB/topics/vehicle_status.h>
 #include <uORB/topics/velocity_limits.h>
 
+#include <uORB/topics/ubay_hitl_can_from_hitl.h>
+#include <uORB/topics/ubay_hitl_can_pack_from_hitl.h>
+
 #if !defined(CONSTRAINED_FLASH)
 # include <uORB/topics/debug_array.h>
 # include <uORB/topics/debug_key_value.h>
@@ -216,6 +219,14 @@ private:
 	void handle_message_named_value_float(mavlink_message_t *msg);
 #endif // !CONSTRAINED_FLASH
 	void handle_message_request_event(mavlink_message_t *msg);
+
+	// IRPAS
+	void handle_message_irpas_hitl_can(mavlink_message_t *msg);
+	uORB::Publication<ubay_hitl_can_from_hitl_s> _ubay_hitl_can_from_hitl_pub{ORB_ID(ubay_hitl_can_from_hitl)};
+	
+	void handle_message_irpas_hitl_can_pack(mavlink_message_t *msg);
+	uORB::Publication<ubay_hitl_can_pack_from_hitl_s> _ubay_hitl_can_pack_from_hitl_pub{ORB_ID(ubay_hitl_can_pack_from_hitl)};
+
 
 	void CheckHeartbeats(const hrt_abstime &t, bool force = false);
 

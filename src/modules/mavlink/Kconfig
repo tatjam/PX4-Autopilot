@@ -24,3 +24,10 @@ menuconfig USER_MAVLINK
 	depends on BOARD_PROTECTED && MODULES_MAVLINK
 	---help---
 		Put mavlink in userspace memory
+
+menuconfig FORCE_HIL_MAVLINK
+    bool "Force HIL mode to be enabled on MAVLink channels"
+    default n
+    depends on MODULES_MAVLINK
+    --help--
+        Guarantee that HIL mode will be enabled on MAVLink channels. To be used by IRPAS for SITL and HITL testing.

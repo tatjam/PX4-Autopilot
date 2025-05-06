@@ -134,6 +134,8 @@ public:
 		_receiver.request_stop();
 	}
 
+	
+
 	/**
 	 * Display the mavlink status.
 	 */
@@ -280,7 +282,17 @@ public:
 
 	enum MAVLINK_MODE	get_mode() { return _mode; }
 
-	bool			get_hil_enabled() { return _hil_enabled; }
+
+	bool			get_hil_enabled() {
+
+#ifdef CONFIG_FORCE_HIL_MAVLINK
+		#pragma message("Warning: HIL forced enable. DO NOT USE IN REAL FLIGHT VEHICLE")
+		return true;
+#else 
+		return _hil_enabled;
+#endif
+	}
+
 
 	bool			get_use_hil_gps() { return _param_mav_usehilgps.get(); }
 
